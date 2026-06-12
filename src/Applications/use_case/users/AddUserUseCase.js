@@ -2,9 +2,10 @@ import RegisteredUser from '../../../Domains/users/entities/RegisteredUser.js';
 import RegisterUser from '../../../Domains/users/entities/RegisterUser.js';
 
 class AddUserUseCase {
-  constructor({ userRepository, passwordHash }) {
+  constructor({ userRepository, passwordHash, roleRepository }) {
     this._userRepository = userRepository;
     this._passwordHash = passwordHash;
+    this._roleRepository = roleRepository;
   }
 
   async execute(useCasePayload) {
@@ -15,10 +16,17 @@ class AddUserUseCase {
 
     const registeredUser = await this._userRepository.addUser(
       new RegisterUser({
-        ...useCasePayload,
+        username: registerUser.username,
         password: hashedPassword,
+        fullname: registerUser.fullname,
+        roleIds: registerUser.roleIds,
       }),
     );
+
+    const rolePromises = registerUser.roleIds.map((roleId) =>
+      this._roleRepository.addUserRole(registeredUser.id, roleId),
+    );
+    await Promise.all(rolePromises);
 
     return new RegisteredUser({
       id: registeredUser.id,

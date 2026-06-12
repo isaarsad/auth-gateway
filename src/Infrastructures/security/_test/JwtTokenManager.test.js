@@ -46,6 +46,26 @@ describe('JwtTokenManager', () => {
     });
   });
 
+  describe('createPreAuthToken function', () => {
+    it('should create preAuthToken correctly', async () => {
+      // Arrange
+      const payload = {
+        username: 'arsad',
+      };
+      const mockJwtToken = {
+        sign: vi.fn().mockImplementation(() => 'mock_token'),
+      };
+      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
+
+      // Action
+      const preAuthToken = await jwtTokenManager.createPreAuthToken(payload);
+
+      // Assert
+      expect(mockJwtToken.sign).toBeCalledWith(payload, config.auth.preAuthTokenKey);
+      expect(preAuthToken).toEqual('mock_token');
+    });
+  });
+
   describe('verifyRefreshToken function', () => {
     it('should throw InvariantError when verification failed', async () => {
       // Arrange
@@ -87,6 +107,30 @@ describe('JwtTokenManager', () => {
 
       // Action & Assert
       await expect(jwtTokenManager.verifyAccessToken(accessToken)).resolves.not.toThrow(
+        AuthenticationError,
+      );
+    });
+  });
+
+  describe('verifyPreAuthToken function', () => {
+    it('should throw AuthenticationError when verification failed', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(jwt);
+      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'arsad' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyPreAuthToken(refreshToken)).rejects.toThrow(
+        AuthenticationError,
+      );
+    });
+
+    it('should not throw AuthenticationError when preauth token verified', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(jwt);
+      const preauthToken = await jwtTokenManager.createPreAuthToken({ username: 'arsad' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyPreAuthToken(preauthToken)).resolves.not.toThrow(
         AuthenticationError,
       );
     });

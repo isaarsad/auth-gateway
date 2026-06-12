@@ -26,6 +26,8 @@ const config = {
     accessTokenKey: process.env.ACCESS_TOKEN_KEY,
     refreshTokenKey: process.env.REFRESH_TOKEN_KEY,
     accessTokenAge: process.env.ACCESS_TOKEN_AGE,
+    preAuthTokenKey: process.env.PRE_AUTH_TOKEN_KEY,
+    preAuthTokenAge: process.env.PRE_AUTH_TOKEN_AGE,
   },
 };
 

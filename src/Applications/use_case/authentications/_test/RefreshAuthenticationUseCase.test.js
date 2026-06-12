@@ -36,19 +36,15 @@ describe('RefreshAuthenticationUseCase', () => {
     const mockAuthenticationRepository = new AuthenticationRepository();
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
     // Mocking
-    mockAuthenticationRepository.checkAvailabilityToken = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.verifyRefreshToken = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve());
+    mockAuthenticationRepository.checkAvailabilityToken = vi.fn().mockResolvedValue();
+    mockAuthenticationTokenManager.verifyRefreshToken = vi.fn().mockResolvedValue();
     mockAuthenticationTokenManager.decodePayload = vi
       .fn()
-      .mockImplementation(() => Promise.resolve({ username: 'arsad', id: 'user-123' }));
+      .mockResolvedValue({ userId: 'user-123', roleId: 'role-123' });
     mockAuthenticationTokenManager.createAccessToken = vi
       .fn()
-      .mockImplementation(() => Promise.resolve('some_new_access_token'));
-    // Create the use case instace
+      .mockResolvedValue('some_new_access_token');
+    // Create the use case instance
     const refreshAuthenticationUseCase = new RefreshAuthenticationUseCase({
       authenticationRepository: mockAuthenticationRepository,
       authenticationTokenManager: mockAuthenticationTokenManager,
@@ -68,8 +64,8 @@ describe('RefreshAuthenticationUseCase', () => {
       useCasePayload.refreshToken,
     );
     expect(mockAuthenticationTokenManager.createAccessToken).toBeCalledWith({
-      username: 'arsad',
-      id: 'user-123',
+      userId: 'user-123',
+      roleId: 'role-123',
     });
     expect(accessToken).toEqual('some_new_access_token');
   });

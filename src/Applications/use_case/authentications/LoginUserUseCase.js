@@ -1,5 +1,4 @@
 import UserLogin from '../../../Domains/users/entities/UserLogin.js';
-import NewAuthentication from '../../../Domains/authentications/entities/NewAuthentication.js';
 
 class LoginUserUseCase {
   constructor({
@@ -7,36 +6,37 @@ class LoginUserUseCase {
     authenticationRepository,
     authenticationTokenManager,
     passwordHash,
+    roleRepository,
   }) {
     this._userRepository = userRepository;
     this._authenticationRepository = authenticationRepository;
     this._authenticationTokenManager = authenticationTokenManager;
     this._passwordHash = passwordHash;
+    this._roleRepository = roleRepository;
   }
 
   async execute(useCasePayload) {
     const { username, password } = new UserLogin(useCasePayload);
 
+    // Verify credential
     const encryptedPassword = await this._userRepository.getPasswordByUsername(username);
-
     await this._passwordHash.comparePassword(password, encryptedPassword);
+    const userId = await this._userRepository.getIdByUsername(username);
 
-    const id = await this._userRepository.getIdByUsername(username);
+    const roles = await this._roleRepository.getUserRoles(userId);
 
-    const accessToken = await this._authenticationTokenManager.createAccessToken({ username, id });
-    const refreshToken = await this._authenticationTokenManager.createRefreshToken({
-      username,
-      id,
+    if (roles.length === 0) {
+      throw new Error('LOGIN_USER.NO_ROLE_ASSIGNED');
+    }
+
+    const preAuthToken = await this._authenticationTokenManager.createPreAuthToken({
+      userId,
     });
 
-    const newAuthentication = new NewAuthentication({
-      accessToken,
-      refreshToken,
-    });
-
-    await this._authenticationRepository.addToken(newAuthentication.refreshToken);
-
-    return newAuthentication;
+    return {
+      preAuthToken,
+      availableRoles: roles,
+    };
   }
 }
 

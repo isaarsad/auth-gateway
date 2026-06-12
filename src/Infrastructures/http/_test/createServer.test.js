@@ -5,6 +5,8 @@ import AuthenticationsTableTestHelper from '../../../../tests/AuthenticationsTab
 import container from '../../container.js';
 import createServer from '../createServer.js';
 import AuthenticationTokenManager from '../../../Applications/security/AuthenticationTokenManager.js';
+import UserRolesTableTestHelper from '../../../../tests/UserRolesTableTestHelper.js';
+import RolesTableTestHelper from '../../../../tests/RolesTableTestHelper.js';
 
 describe('HTTP Server', () => {
   afterAll(async () => {
@@ -12,6 +14,8 @@ describe('HTTP Server', () => {
   });
 
   afterEach(async () => {
+    await UserRolesTableTestHelper.cleanTable();
+    await RolesTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
   });
@@ -30,10 +34,12 @@ describe('HTTP Server', () => {
   describe('when POST /users', () => {
     it('should response 201 and persisted user', async () => {
       // Arrange
+      await RolesTableTestHelper.addRole({ roleId: 'role-456', roleName: 'Staff' });
       const requestPayload = {
         username: 'arsad',
         password: 'secret',
         fullname: 'Isa Arsad',
+        roleIds: ['role-456'],
       };
       const app = await createServer(container);
 
@@ -71,6 +77,7 @@ describe('HTTP Server', () => {
         username: 'arsad',
         password: 'secret',
         fullname: ['Isa Arsad'],
+        roleIds: ['role-123'],
       };
       const app = await createServer(container);
 
@@ -91,6 +98,7 @@ describe('HTTP Server', () => {
         username: 'arsadarsadarsadarsadarsadarsadarsadarsadarsadarsadarsad',
         password: 'secret',
         fullname: 'Isa Arsad',
+        roleIds: ['role-123'],
       };
       const app = await createServer(container);
 
@@ -111,6 +119,7 @@ describe('HTTP Server', () => {
         username: 'isa arsad',
         password: 'secret',
         fullname: 'Isa Arsad',
+        roleIds: ['role-123'],
       };
       const app = await createServer(container);
 
@@ -132,6 +141,7 @@ describe('HTTP Server', () => {
         username: 'arsad',
         fullname: 'Isa Arsad',
         password: 'super_secret',
+        roleIds: ['role-123'],
       };
       const app = await createServer(container);
 
@@ -147,24 +157,29 @@ describe('HTTP Server', () => {
 
   describe('when POST /authentications', () => {
     it('should response 201 and new authentication', async () => {
+      await RolesTableTestHelper.addRole({ roleId: 'role-456', roleName: 'Staff' });
+
       const requestPayload = {
         username: 'arsad',
         password: 'secret',
       };
       const app = await createServer(container);
 
-      await request(app).post('/users').send({
-        username: 'arsad',
-        password: 'secret',
-        fullname: 'Isa Arsad',
-      });
+      await request(app)
+        .post('/users')
+        .send({
+          username: 'arsad',
+          password: 'secret',
+          fullname: 'Isa Arsad',
+          roleIds: ['role-456'],
+        });
 
       const response = await request(app).post('/authentications').send(requestPayload);
 
       expect(response.status).toEqual(201);
       expect(response.body.status).toEqual('success');
-      expect(response.body.data.accessToken).toBeDefined();
-      expect(response.body.data.refreshToken).toBeDefined();
+      expect(response.body.data.preAuthToken).toBeDefined();
+      expect(response.body.data.availableRoles).toBeDefined();
     });
 
     it('should response 400 if username not found', async () => {
@@ -188,11 +203,14 @@ describe('HTTP Server', () => {
       };
       const app = await createServer(container);
 
-      await request(app).post('/users').send({
-        username: 'arsad',
-        password: 'secret',
-        fullname: 'Isa Arsad',
-      });
+      await request(app)
+        .post('/users')
+        .send({
+          username: 'arsad',
+          password: 'secret',
+          fullname: 'Isa Arsad',
+          roleIds: ['role-456'],
+        });
 
       const response = await request(app).post('/authentications').send(requestPayload);
 
@@ -233,11 +251,14 @@ describe('HTTP Server', () => {
     it('should return 200 and new access token', async () => {
       const app = await createServer(container);
 
-      await request(app).post('/users').send({
-        username: 'arsad',
-        password: 'secret',
-        fullname: 'Isa Arsad',
-      });
+      await request(app)
+        .post('/users')
+        .send({
+          username: 'arsad',
+          password: 'secret',
+          fullname: 'Isa Arsad',
+          roleIds: ['role-456'],
+        });
 
       const loginResponse = await request(app).post('/authentications').send({
         username: 'arsad',

@@ -33,6 +33,7 @@ const createServer = async (container) => {
 
   // Global error handler
   app.use((error, req, res, _next) => {
+    console.error('DIAGNOSIS ERROR 500:', error);
     // bila response tersebut error, tangani sesuai kebutuhan
     const translatedError = DomainErrorTranslator.translate(error);
 

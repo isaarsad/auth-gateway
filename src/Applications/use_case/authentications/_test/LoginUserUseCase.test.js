@@ -3,70 +3,89 @@ import AuthenticationRepository from '../../../../Domains/authentications/Authen
 import AuthenticationTokenManager from '../../../security/AuthenticationTokenManager.js';
 import PasswordHash from '../../../security/PasswordHash.js';
 import LoginUserUseCase from '../LoginUserUseCase.js';
-import NewAuthentication from '../../../../Domains/authentications/entities/NewAuthentication.js';
+import RoleRepository from '../../../../Domains/roles/RoleRepository.js';
 import { vi } from 'vitest';
 
-describe('GetAuthenticationUseCase', () => {
-  it('should orchestrate the get authentication action correctly', async () => {
+describe('LoginUserUseCase', () => {
+  it('should throw error when user has no assigned role', async () => {
     // Arrange
-    const useCasePayload = {
-      username: 'arsad',
-      password: 'secret',
-    };
-    const mockedAuthentication = new NewAuthentication({
-      accessToken: 'access_token',
-      refreshToken: 'refresh_token',
-    });
+    const useCasePayload = { username: 'arsad', password: 'secret' };
+
     const mockUserRepository = new UserRepository();
+    const mockPasswordHash = new PasswordHash();
+    const mockRoleRepository = new RoleRepository();
     const mockAuthenticationRepository = new AuthenticationRepository();
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
-    const mockPasswordHash = new PasswordHash();
 
-    // Mocking
-    mockUserRepository.getPasswordByUsername = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve('encrypted_password'));
-    mockPasswordHash.comparePassword = vi.fn().mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.createAccessToken = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(mockedAuthentication.accessToken));
-    mockAuthenticationTokenManager.createRefreshToken = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve(mockedAuthentication.refreshToken));
-    mockUserRepository.getIdByUsername = vi
-      .fn()
-      .mockImplementation(() => Promise.resolve('user-123'));
-    mockAuthenticationRepository.addToken = vi.fn().mockImplementation(() => Promise.resolve());
+    mockUserRepository.getPasswordByUsername = vi.fn().mockResolvedValue('encrypted_password');
+    mockPasswordHash.comparePassword = vi.fn().mockResolvedValue();
+    mockUserRepository.getIdByUsername = vi.fn().mockResolvedValue('user-123');
+    mockRoleRepository.getUserRoles = vi.fn().mockResolvedValue([]);
 
-    // create use case instance
+    mockAuthenticationTokenManager.createAccessToken = vi.fn();
+    mockAuthenticationTokenManager.createRefreshToken = vi.fn();
+    mockAuthenticationTokenManager.createPreAuthToken = vi.fn();
+    mockAuthenticationRepository.addToken = vi.fn();
+
     const loginUserUseCase = new LoginUserUseCase({
       userRepository: mockUserRepository,
+      passwordHash: mockPasswordHash,
+      roleRepository: mockRoleRepository,
       authenticationRepository: mockAuthenticationRepository,
       authenticationTokenManager: mockAuthenticationTokenManager,
+    });
+
+    // Action & Assert
+    await expect(loginUserUseCase.execute(useCasePayload)).rejects.toThrowError(
+      'LOGIN_USER.NO_ROLE_ASSIGNED',
+    );
+
+    expect(mockAuthenticationTokenManager.createAccessToken).not.toBeCalled();
+    expect(mockAuthenticationTokenManager.createRefreshToken).not.toBeCalled();
+    expect(mockAuthenticationTokenManager.createPreAuthToken).not.toBeCalled();
+    expect(mockAuthenticationRepository.addToken).not.toBeCalled();
+  });
+
+  it('should orchestrate login correctly and always return pre-auth token with available roles', async () => {
+    // Arrange
+    const useCasePayload = { username: 'arsad', password: 'secret' };
+    const mockRoles = [{ roleId: 'role-123' }, { roleId: 'role-456' }];
+
+    const mockUserRepository = new UserRepository();
+    const mockPasswordHash = new PasswordHash();
+    const mockRoleRepository = new RoleRepository();
+    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
+
+    mockUserRepository.getPasswordByUsername = vi.fn().mockResolvedValue('encrypted_password');
+    mockPasswordHash.comparePassword = vi.fn().mockResolvedValue();
+    mockUserRepository.getIdByUsername = vi.fn().mockResolvedValue('user-123');
+    mockRoleRepository.getUserRoles = vi.fn().mockResolvedValue(mockRoles);
+    mockAuthenticationTokenManager.createPreAuthToken = vi
+      .fn()
+      .mockResolvedValue('valid_pre_auth_token');
+
+    const loginUserUseCase = new LoginUserUseCase({
+      userRepository: mockUserRepository,
       passwordHash: mockPasswordHash,
+      roleRepository: mockRoleRepository,
+      authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Action
-    const actualAuthentication = await loginUserUseCase.execute(useCasePayload);
+    const result = await loginUserUseCase.execute(useCasePayload);
 
     // Assert
-    expect(actualAuthentication).toEqual(
-      new NewAuthentication({
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
-      }),
-    );
+    expect(result).toEqual({
+      preAuthToken: 'valid_pre_auth_token',
+      availableRoles: mockRoles,
+    });
+
     expect(mockUserRepository.getPasswordByUsername).toBeCalledWith('arsad');
     expect(mockPasswordHash.comparePassword).toBeCalledWith('secret', 'encrypted_password');
     expect(mockUserRepository.getIdByUsername).toBeCalledWith('arsad');
-    expect(mockAuthenticationTokenManager.createAccessToken).toBeCalledWith({
-      username: 'arsad',
-      id: 'user-123',
+    expect(mockRoleRepository.getUserRoles).toBeCalledWith('user-123');
+    expect(mockAuthenticationTokenManager.createPreAuthToken).toBeCalledWith({
+      userId: 'user-123',
     });
-    expect(mockAuthenticationTokenManager.createRefreshToken).toBeCalledWith({
-      username: 'arsad',
-      id: 'user-123',
-    });
-    expect(mockAuthenticationRepository.addToken).toBeCalledWith(mockedAuthentication.refreshToken);
   });
 });

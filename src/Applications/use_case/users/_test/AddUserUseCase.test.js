@@ -3,19 +3,18 @@ import RegisterUser from '../../../../Domains/users/entities/RegisterUser.js';
 import RegisteredUser from '../../../../Domains/users/entities/RegisteredUser.js';
 import UserRepository from '../../../../Domains/users/UserRepository.js';
 import PasswordHash from '../../../security/PasswordHash.js';
+import RoleRepository from '../../../../Domains/roles/RoleRepository.js';
 import AddUserUseCase from '../AddUserUseCase.js';
 import InvariantError from '../../../../Commons/exceptions/InvariantError.js';
 
 describe('AddUserUseCase', () => {
-  /**
-   * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
-   */
-  it('should orchestrate the add user action correctly', async () => {
+  it('should orchestrate the add user action correctly with multiple roles', async () => {
     // Arrange
     const useCasePayload = {
-      username: 'arsadisa',
+      username: 'arsad',
       password: 'secret',
       fullname: 'Isa Arsad',
+      roleIds: ['role-123', 'role-456'],
     };
 
     const mockRegisteredUser = {
@@ -24,19 +23,22 @@ describe('AddUserUseCase', () => {
       fullname: useCasePayload.fullname,
     };
 
-    /** creating dependency of use case */
+    // Creating dependencies
     const mockUserRepository = new UserRepository();
     const mockPasswordHash = new PasswordHash();
+    const mockRoleRepository = new RoleRepository();
 
-    /** mocking needed function */
+    // Mocking needed functions
     mockUserRepository.verifyAvailableUsername = vi.fn().mockResolvedValue();
     mockPasswordHash.hash = vi.fn().mockResolvedValue('encrypted_password');
     mockUserRepository.addUser = vi.fn().mockResolvedValue(mockRegisteredUser);
+    mockRoleRepository.addUserRole = vi.fn().mockResolvedValue();
 
-    /** creating use case instance */
+    // Creating use case instance
     const addUserUseCase = new AddUserUseCase({
       userRepository: mockUserRepository,
       passwordHash: mockPasswordHash,
+      roleRepository: mockRoleRepository,
     });
 
     // Action
@@ -58,32 +60,39 @@ describe('AddUserUseCase', () => {
         username: useCasePayload.username,
         password: 'encrypted_password',
         fullname: useCasePayload.fullname,
+        roleIds: useCasePayload.roleIds,
       }),
     );
+
+    expect(mockRoleRepository.addUserRole).toHaveBeenCalledTimes(2);
+    expect(mockRoleRepository.addUserRole).toHaveBeenNthCalledWith(1, 'user-123', 'role-123');
+    expect(mockRoleRepository.addUserRole).toHaveBeenNthCalledWith(2, 'user-123', 'role-456');
   });
 
   it('should throw error when username not available', async () => {
     // Arrange
     const useCasePayload = {
-      username: 'arsadisa',
+      username: 'arsad',
       password: 'secret',
       fullname: 'Isa Arsad',
+      roleIds: ['role-123'],
     };
-    /** creating dependency of use case */
+
     const mockUserRepository = new UserRepository();
     const mockPasswordHash = new PasswordHash();
+    const mockRoleRepository = new RoleRepository();
 
-    /** mocking needed function */
     mockUserRepository.verifyAvailableUsername = vi
       .fn()
       .mockRejectedValue(new InvariantError('USERNAME_NOT_AVAILABLE'));
     mockPasswordHash.hash = vi.fn().mockResolvedValue('encrypted_password');
     mockUserRepository.addUser = vi.fn();
+    mockRoleRepository.addUserRole = vi.fn();
 
-    /** creating use case instance */
     const addUserUseCase = new AddUserUseCase({
       userRepository: mockUserRepository,
       passwordHash: mockPasswordHash,
+      roleRepository: mockRoleRepository,
     });
 
     // Action & Assert
@@ -92,5 +101,6 @@ describe('AddUserUseCase', () => {
     expect(mockUserRepository.verifyAvailableUsername).toBeCalledWith(useCasePayload.username);
     expect(mockPasswordHash.hash).not.toBeCalled();
     expect(mockUserRepository.addUser).not.toBeCalled();
+    expect(mockRoleRepository.addUserRole).not.toBeCalled();
   });
 });

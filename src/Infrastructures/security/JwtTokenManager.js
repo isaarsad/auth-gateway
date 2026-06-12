@@ -17,6 +17,10 @@ class JwtTokenManager extends AuthenticationTokenManager {
     return this._jwt.sign(payload, config.auth.refreshTokenKey);
   }
 
+  async createPreAuthToken(payload) {
+    return this._jwt.sign(payload, config.auth.preAuthTokenKey);
+  }
+
   async verifyRefreshToken(token) {
     try {
       this._jwt.verify(token, config.auth.refreshTokenKey);
@@ -32,6 +36,15 @@ class JwtTokenManager extends AuthenticationTokenManager {
       // eslint-disable-next-line no-unused-vars
     } catch (error) {
       throw new AuthenticationError('access token tidak valid');
+    }
+  }
+
+  async verifyPreAuthToken(token) {
+    try {
+      this._jwt.verify(token, config.auth.preAuthTokenKey);
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      throw new AuthenticationError('pre-auth token tidak valid');
     }
   }
 

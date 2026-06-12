@@ -7,20 +7,38 @@ class AuthenticationsController {
     this._container = container;
 
     this.postAuthenticationController = this.postAuthenticationController.bind(this);
+    this.postSelectRoleController = this.postSelectRoleController.bind(this);
     this.putAuthenticationController = this.putAuthenticationController.bind(this);
     this.deleteAuthenticationController = this.deleteAuthenticationController.bind(this);
   }
 
   async postAuthenticationController(req, res) {
     const loginUserUseCase = this._container.getInstance(LoginUserUseCase.name);
-    const { accessToken, refreshToken } = await loginUserUseCase.execute(req.body);
+    const { preAuthToken, availableRoles } = await loginUserUseCase.execute(req.body);
 
     res.status(201).json({
       status: 'success',
       data: {
-        accessToken,
-        refreshToken,
+        preAuthToken,
+        availableRoles,
       },
+    });
+  }
+
+  async postSelectRoleController(req, res) {
+    const selectRoleUseCase = this._container.getInstance('SelectRoleUseCase');
+
+    const { roleId } = req.body;
+    const userId = req.userId;
+
+    const { accessToken, refreshToken } = await selectRoleUseCase.execute({
+      userId,
+      roleId,
+    });
+
+    res.status(201).json({
+      status: 'success',
+      data: { accessToken, refreshToken },
     });
   }
 

@@ -12,6 +12,9 @@ describe('AuthenticationTokenManager interface', () => {
     await expect(tokenManager.createRefreshToken('')).rejects.toThrow(
       'AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED',
     );
+    await expect(tokenManager.createPreAuthToken('')).rejects.toThrow(
+      'AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED',
+    );
     await expect(tokenManager.verifyRefreshToken('')).rejects.toThrow(
       'AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED',
     );

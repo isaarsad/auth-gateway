@@ -9,6 +9,7 @@ import pool from './database/postgres/pool.js';
 // --- Domains ---
 import UserRepository from '../Domains/users/UserRepository.js';
 import AuthenticationRepository from '../Domains/authentications/AuthenticationRepository.js';
+import RoleRepository from '../Domains/roles/RoleRepository.js';
 
 // --- Applications (Use Cases & Security Interfaces) ---
 import PasswordHash from '../Applications/security/PasswordHash.js';
@@ -18,12 +19,15 @@ import AddUserUseCase from '../Applications/use_case/users/AddUserUseCase.js';
 import LoginUserUseCase from '../Applications/use_case/authentications/LoginUserUseCase.js';
 import LogoutUserUseCase from '../Applications/use_case/authentications/LogoutUserUseCase.js';
 import RefreshAuthenticationUseCase from '../Applications/use_case/authentications/RefreshAuthenticationUseCase.js';
+import SelectRoleUseCase from '../Applications/use_case/authentications/SelectRoleUseCase.js';
 
 // --- Infrastructure Implementations ---
 import UserRepositoryPostgres from './repository/UserRepositoryPostgres.js';
 import AuthenticationRepositoryPostgres from './repository/AuthenticationRepositoryPostgres.js';
 import BcryptPasswordHash from './security/BcryptPasswordHash.js';
 import JwtTokenManager from './security/JwtTokenManager.js';
+
+import RoleRepositoryPostgres from './repository/RoleRepositoryPostgres.js';
 
 const container = createContainer();
 
@@ -49,6 +53,11 @@ container.register([
     Class: JwtTokenManager,
     parameter: { dependencies: [{ concrete: jwt }] },
   },
+  {
+    key: RoleRepository.name,
+    Class: RoleRepositoryPostgres,
+    parameter: { dependencies: [{ concrete: pool }, { concrete: nanoid }] },
+  },
 ]);
 
 // Registering Use Cases
@@ -61,6 +70,7 @@ container.register([
       dependencies: [
         { name: 'userRepository', internal: UserRepository.name },
         { name: 'passwordHash', internal: PasswordHash.name },
+        { name: 'roleRepository', internal: RoleRepository.name },
       ],
     },
   },
@@ -74,6 +84,7 @@ container.register([
         { name: 'authenticationRepository', internal: AuthenticationRepository.name },
         { name: 'authenticationTokenManager', internal: AuthenticationTokenManager.name },
         { name: 'passwordHash', internal: PasswordHash.name },
+        { name: 'roleRepository', internal: RoleRepository.name },
       ],
     },
   },
@@ -93,6 +104,18 @@ container.register([
       dependencies: [
         { name: 'authenticationRepository', internal: AuthenticationRepository.name },
         { name: 'authenticationTokenManager', internal: AuthenticationTokenManager.name },
+      ],
+    },
+  },
+  {
+    key: SelectRoleUseCase.name,
+    Class: SelectRoleUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        { name: 'authenticationRepository', internal: AuthenticationRepository.name },
+        { name: 'authenticationTokenManager', internal: AuthenticationTokenManager.name },
+        { name: 'roleRepository', internal: RoleRepository.name },
       ],
     },
   },

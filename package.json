@@ -12,6 +12,8 @@
     "test:coverage": "vitest --coverage",
     "migrate": "node-pg-migrate --envPath .env",
     "migrate:test": "node-pg-migrate --envPath .test.env",
+    "seed": "node src/Infrastructures/database/postgres/seed.js",
+    "seed:test": "NODE_ENV=test node src/Infrastructures/database/postgres/seed.js",
     "lint": "eslint ./"
   },
   "keywords": [],

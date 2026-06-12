@@ -18,6 +18,7 @@ describe('a RegisterUser entities', () => {
       username: 123,
       fullname: true,
       password: 'abc',
+      roleIds: 'role-123',
     };
 
     // Action and Assert
@@ -32,6 +33,7 @@ describe('a RegisterUser entities', () => {
       username: 'arsadarsadarsadarsadarsadarsadarsadarsadarsadarsadarsad',
       fullname: 'Isa Arsad',
       password: 'abc',
+      roleIds: [],
     };
 
     // Action and Assert
@@ -44,6 +46,7 @@ describe('a RegisterUser entities', () => {
       username: 'arsad isa',
       fullname: 'Isa Arsad',
       password: 'abc',
+      roleIds: [],
     };
 
     // Action and Assert
@@ -58,14 +61,16 @@ describe('a RegisterUser entities', () => {
       username: 'arsad',
       fullname: 'Isa Arsad',
       password: 'abc',
+      roleIds: [],
     };
 
     // Action
-    const { username, fullname, password } = new RegisterUser(payload);
+    const { username, fullname, password, roleId } = new RegisterUser(payload);
 
     // Assert
     expect(username).toEqual(payload.username);
     expect(fullname).toEqual(payload.fullname);
     expect(password).toEqual(payload.password);
+    expect(roleId).toEqual(payload.roleId);
   });
 });

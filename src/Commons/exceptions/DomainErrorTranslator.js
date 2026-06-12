@@ -37,27 +37,6 @@ DomainErrorTranslator._directories = {
   'DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
     'refresh token harus string',
   ),
-
-  'NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
-    'cannot create thread, missing required property',
-  ),
-  'NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
-    'cannot create thread, invalid data type',
-  ),
-
-  'NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
-    'cannot create comment, missing required property',
-  ),
-  'NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
-    'cannot create comment, invalid data type',
-  ),
-
-  'NEW_REPLY.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
-    'cannot create reply, missing required property',
-  ),
-  'NEW_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
-    'cannot create reply, invalid data type',
-  ),
 };
 
 export default DomainErrorTranslator;
