@@ -1,3 +1,5 @@
+import RolesTableTestHelper from '../../../../tests/RolesTableTestHelper.js';
+import UserRolesTableTestHelper from '../../../../tests/UserRolesTableTestHelper.js';
 import UsersTableTestHelper from '../../../../tests/UsersTableTestHelper.js';
 import InvariantError from '../../../Commons/exceptions/InvariantError.js';
 import RegisterUser from '../../../Domains/users/entities/RegisterUser.js';
@@ -7,6 +9,8 @@ import UserRepositoryPostgres from '../UserRepositoryPostgres.js';
 
 describe('UserRepositoryPostgres', () => {
   afterEach(async () => {
+    await UserRolesTableTestHelper.cleanTable();
+    await RolesTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
   });
 
@@ -40,10 +44,14 @@ describe('UserRepositoryPostgres', () => {
   describe('addUser function', () => {
     it('should persist register user and return registered user correctly', async () => {
       // Arrange
+      await RolesTableTestHelper.addRole({ roleId: 'role-123', roleName: 'Administrator' });
+      await RolesTableTestHelper.addRole({ roleId: 'role-456', roleName: 'Staff' });
+
       const registerUser = new RegisterUser({
         username: 'arsad',
         password: 'secret_password',
         fullname: 'Isa Arsad',
+        roleIds: ['role-123', 'role-456'],
       });
       const fakeIdGenerator = () => '123'; // stub!
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
@@ -53,15 +61,19 @@ describe('UserRepositoryPostgres', () => {
 
       // Assert
       const users = await UsersTableTestHelper.findUsersById('user-123');
+      const userRoles = await UserRolesTableTestHelper.findUserRolesById('user-123');
       expect(users).toHaveLength(1);
+      expect(userRoles).toHaveLength(2);
     });
 
     it('should return registered user correctly', async () => {
       // Arrange
+      await RolesTableTestHelper.addRole({ roleId: 'role-123', roleName: 'Administrator' });
       const registerUser = new RegisterUser({
         username: 'arsad',
         password: 'secret_password',
         fullname: 'Isa Arsad',
+        roleIds: ['role-123'],
       });
       const fakeIdGenerator = () => '123'; // stub!
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);

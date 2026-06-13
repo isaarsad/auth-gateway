@@ -11,10 +11,6 @@ class RoleRepository {
     throw new Error('ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async addUserRole(_userId, _roleId) {
-    throw new Error('ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
   async getUserRoles(_userId) {
     throw new Error('ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }

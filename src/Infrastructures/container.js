@@ -70,7 +70,6 @@ container.register([
       dependencies: [
         { name: 'userRepository', internal: UserRepository.name },
         { name: 'passwordHash', internal: PasswordHash.name },
-        { name: 'roleRepository', internal: RoleRepository.name },
       ],
     },
   },

@@ -10,10 +10,10 @@ const UserRolesTableTestHelper = {
     await pool.query(query);
   },
 
-  async findUserRolesById(id) {
+  async findUserRolesById(userId) {
     const query = {
-      text: 'SELECT * FROM user_roles WHERE id = $1',
-      values: [id],
+      text: 'SELECT * FROM user_roles WHERE user_id = $1',
+      values: [userId],
     };
 
     const result = await pool.query(query);

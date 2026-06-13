@@ -26,19 +26,16 @@ describe('AddUserUseCase', () => {
     // Creating dependencies
     const mockUserRepository = new UserRepository();
     const mockPasswordHash = new PasswordHash();
-    const mockRoleRepository = new RoleRepository();
 
     // Mocking needed functions
     mockUserRepository.verifyAvailableUsername = vi.fn().mockResolvedValue();
     mockPasswordHash.hash = vi.fn().mockResolvedValue('encrypted_password');
     mockUserRepository.addUser = vi.fn().mockResolvedValue(mockRegisteredUser);
-    mockRoleRepository.addUserRole = vi.fn().mockResolvedValue();
 
     // Creating use case instance
     const addUserUseCase = new AddUserUseCase({
       userRepository: mockUserRepository,
       passwordHash: mockPasswordHash,
-      roleRepository: mockRoleRepository,
     });
 
     // Action
@@ -63,10 +60,6 @@ describe('AddUserUseCase', () => {
         roleIds: useCasePayload.roleIds,
       }),
     );
-
-    expect(mockRoleRepository.addUserRole).toHaveBeenCalledTimes(2);
-    expect(mockRoleRepository.addUserRole).toHaveBeenNthCalledWith(1, 'user-123', 'role-123');
-    expect(mockRoleRepository.addUserRole).toHaveBeenNthCalledWith(2, 'user-123', 'role-456');
   });
 
   it('should throw error when username not available', async () => {

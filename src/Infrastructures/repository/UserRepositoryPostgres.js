@@ -23,17 +23,35 @@ class UserRepositoryPostgres extends UserRepository {
   }
 
   async addUser(registerUser) {
-    const { username, password, fullname } = registerUser;
+    const client = await this._pool.connect();
+    const { username, password, fullname, roleIds } = registerUser;
     const id = `user-${this._idGenerator()}`;
 
-    const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username, fullname',
-      values: [id, username, password, fullname],
-    };
+    try {
+      await client.query('BEGIN');
 
-    const result = await this._pool.query(query);
+      const insertUserQuery = {
+        text: 'INSERT INTO users(id, username, password, fullname) VALUES($1, $2, $3, $4) RETURNING id, username, fullname',
+        values: [id, username, password, fullname],
+      };
+      const userResult = await client.query(insertUserQuery);
+      const userId = userResult.rows[0].id;
 
-    return new RegisteredUser({ ...result.rows[0] });
+      const insertRolesQuery = {
+        text: 'INSERT INTO user_roles(user_id, role_id) SELECT $1, * FROM UNNEST($2::text[])',
+        values: [userId, roleIds],
+      };
+      await client.query(insertRolesQuery);
+
+      await client.query('COMMIT');
+
+      return new RegisteredUser({ ...userResult.rows[0] });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   async getPasswordByUsername(username) {

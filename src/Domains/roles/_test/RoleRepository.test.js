@@ -15,9 +15,6 @@ describe('RoleRepository interface', () => {
     await expect(roleRepository.getRoleById('')).rejects.toThrow(
       'ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );
-    await expect(roleRepository.addUserRole('', '')).rejects.toThrow(
-      'ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED',
-    );
     await expect(roleRepository.getUserRoles('')).rejects.toThrow(
       'ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );

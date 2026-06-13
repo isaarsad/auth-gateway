@@ -16,7 +16,7 @@ const PreAuthMiddleware = (getTokenManager) => async (req, res, next) => {
 
   await authenticationTokenManager.verifyPreAuthToken(token);
 
-  const { userId } = await authenticationTokenManager.decodePreAuthToken(token);
+  const { userId } = await authenticationTokenManager.decodePayload(token);
 
   req.userId = userId;
 

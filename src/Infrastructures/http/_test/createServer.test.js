@@ -45,6 +45,7 @@ describe('HTTP Server', () => {
 
       // Action
       const response = await request(app).post('/users').send(requestPayload);
+      console.log('Pesan Error Asli Server:', response.body);
 
       // Assert
       expect(response.status).toEqual(201);
@@ -202,6 +203,7 @@ describe('HTTP Server', () => {
         password: 'wrong_password',
       };
       const app = await createServer(container);
+      await RolesTableTestHelper.addRole({ roleId: 'role-456', roleName: 'Staff' });
 
       await request(app)
         .post('/users')
@@ -249,6 +251,8 @@ describe('HTTP Server', () => {
 
   describe('when PUT /authentications', () => {
     it('should return 200 and new access token', async () => {
+      await RolesTableTestHelper.addRole({ roleId: 'role-456', roleName: 'Staff' });
+
       const app = await createServer(container);
 
       await request(app)
@@ -265,7 +269,16 @@ describe('HTTP Server', () => {
         password: 'secret',
       });
 
-      const { refreshToken } = loginResponse.body.data;
+      const { preAuthToken } = loginResponse.body.data;
+
+      const authResponse = await request(app)
+        .post('/authentications/role')
+        .set('Authorization', `Bearer ${preAuthToken}`)
+        .send({
+          roleId: 'role-456',
+        });
+
+      const { refreshToken } = authResponse.body.data;
       const response = await request(app).put('/authentications').send({ refreshToken });
 
       expect(response.status).toEqual(200);
