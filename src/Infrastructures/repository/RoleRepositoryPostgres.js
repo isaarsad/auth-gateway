@@ -15,7 +15,7 @@ class RoleRepositoryPostgres extends RoleRepository {
     const id = `role-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO roles VALUES($1, $2) RETURNING id, name',
+      text: 'INSERT INTO roles VALUES($1, $2) RETURNING id, role_name AS "roleName"',
       values: [id, roleName],
     };
 
@@ -24,13 +24,13 @@ class RoleRepositoryPostgres extends RoleRepository {
   }
 
   async getRoles() {
-    const result = await this._pool.query('SELECT id, name FROM roles');
+    const result = await this._pool.query('SELECT id, role_name AS "roleName" FROM roles');
     return result.rows;
   }
 
   async getRoleById(id) {
     const query = {
-      text: 'SELECT id, name FROM roles WHERE id = $1',
+      text: 'SELECT id, role_name AS "roleName" FROM roles WHERE id = $1',
       values: [id],
     };
 
@@ -41,15 +41,6 @@ class RoleRepositoryPostgres extends RoleRepository {
     }
 
     return result.rows[0];
-  }
-
-  async addUserRole(userId, roleId) {
-    const query = {
-      text: 'INSERT INTO user_roles (user_id, role_id) VALUES($1, $2)',
-      values: [userId, roleId],
-    };
-
-    await this._pool.query(query);
   }
 
   async getUserRoles(userId) {

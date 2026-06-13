@@ -13,7 +13,7 @@ describe('NewRole entities', () => {
     // Arrange
     const payload = {
       id: true,
-      name: 123,
+      roleName: 123,
     };
 
     // Action & Assert
@@ -24,7 +24,7 @@ describe('NewRole entities', () => {
     // Arrange
     const payload = {
       id: 'role-123',
-      name: 'Administrator',
+      roleName: 'Administrator',
     };
 
     // Action
@@ -33,6 +33,6 @@ describe('NewRole entities', () => {
     // Assert
     expect(newRole).toBeInstanceOf(NewRole);
     expect(newRole.id).toEqual(payload.id);
-    expect(newRole.name).toEqual(payload.name);
+    expect(newRole.roleName).toEqual(payload.roleName);
   });
 });
