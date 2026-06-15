@@ -153,4 +153,27 @@ describe('RoleRepositoryPostgres', () => {
       );
     });
   });
+
+  describe('verifyAvailableRoleName function', () => {
+    it('should throw InvariantError when username not available', async () => {
+      // Arrange
+      await RolesTableTestHelper.addRole({ roleId: 'role-123', roleName: 'Administrator' }); // memasukan user baru dengan username dicoding
+      const roleRepositoryPostgres = new RoleRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(roleRepositoryPostgres.verifyAvailableRoleName('Administrator')).rejects.toThrow(
+        InvariantError,
+      );
+    });
+
+    it('should not throw InvariantError when username available', async () => {
+      // Arrange
+      const roleRepositoryPostgres = new RoleRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(
+        roleRepositoryPostgres.verifyAvailableRoleName('Administrator'),
+      ).resolves.not.toThrow(InvariantError);
+    });
+  });
 });

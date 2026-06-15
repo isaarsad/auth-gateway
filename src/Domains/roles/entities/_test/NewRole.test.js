@@ -12,7 +12,6 @@ describe('NewRole entities', () => {
   it('should throw error when payload not meet data type specification', () => {
     // Arrange
     const payload = {
-      id: true,
       roleName: 123,
     };
 
@@ -23,7 +22,6 @@ describe('NewRole entities', () => {
   it('should create NewRole entities correctly', () => {
     // Arrange
     const payload = {
-      id: 'role-123',
       roleName: 'Administrator',
     };
 

@@ -79,6 +79,19 @@ class RoleRepositoryPostgres extends RoleRepository {
       throw new NotFoundError('Role tidak ditemukan!');
     }
   }
+
+  async verifyAvailableRoleName(roleName) {
+    const query = {
+      text: 'SELECT role_name FROM roles WHERE role_name = $1',
+      values: [roleName],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (result.rowCount > 0) {
+      throw new InvariantError('Nama role tidak tersedia');
+    }
+  }
 }
 
 export default RoleRepositoryPostgres;

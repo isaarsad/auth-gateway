@@ -22,6 +22,9 @@ class RoleRepository {
   async verifyRoleExists(_roleId) {
     throw new Error('ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
+  async verifyAvailableRoleName(_roleName) {
+    throw new Error('ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  }
 }
 
 export default RoleRepository;
