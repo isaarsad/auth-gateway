@@ -6,10 +6,10 @@ import AuthorizationError from '../../../Commons/exceptions/AuthorizationError.j
 import NewRole from '../../../Domains/roles/entities/NewRole.js';
 import pool from '../../database/postgres/pool.js';
 import RoleRepositoryPostgres from '../RoleRepositoryPostgres.js';
+import NotFoundError from '../../../Commons/exceptions/NotFoundError.js';
 
 describe('RoleRepositoryPostgres', () => {
   afterEach(async () => {
-    // WAJIB: Sapu bersih semua sisa perang biar gak bentrok antar-test!
     await UserRolesTableTestHelper.cleanTable();
     await RolesTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
@@ -128,6 +128,29 @@ describe('RoleRepositoryPostgres', () => {
       await expect(
         roleRepositoryPostgres.verifyUserRole('user-123', 'role-123'),
       ).resolves.not.toThrow(AuthorizationError);
+    });
+  });
+
+  describe('verifyRoleExists function', () => {
+    it('should throw NotFoundError when role does not exist', async () => {
+      // Arrange
+      const roleRepositoryPostgres = new RoleRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(roleRepositoryPostgres.verifyRoleExists('role-fake')).rejects.toThrow(
+        NotFoundError,
+      );
+    });
+
+    it('should not throw NotFoundError when role exists', async () => {
+      // Arrange
+      await RolesTableTestHelper.addRole({ roleId: 'role-123', roleName: 'Admin' });
+      const roleRepositoryPostgres = new RoleRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(roleRepositoryPostgres.verifyRoleExists('role-123')).resolves.not.toThrow(
+        NotFoundError,
+      );
     });
   });
 });

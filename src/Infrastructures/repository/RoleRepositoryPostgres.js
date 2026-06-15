@@ -1,5 +1,6 @@
 import AuthorizationError from '../../Commons/exceptions/AuthorizationError.js';
 import InvariantError from '../../Commons/exceptions/InvariantError.js';
+import NotFoundError from '../../Commons/exceptions/NotFoundError.js';
 import NewRole from '../../Domains/roles/entities/NewRole.js';
 import RoleRepository from '../../Domains/roles/RoleRepository.js';
 
@@ -63,6 +64,19 @@ class RoleRepositoryPostgres extends RoleRepository {
 
     if (!result.rowCount) {
       throw new AuthorizationError('Anda tidak berhak mengakses role ini');
+    }
+  }
+
+  async verifyRoleExists(roleId) {
+    const query = {
+      text: 'SELECT id FROM roles WHERE id = $1',
+      values: [roleId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (result.rows.length === 0) {
+      throw new NotFoundError('Role tidak ditemukan!');
     }
   }
 }

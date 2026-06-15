@@ -21,5 +21,8 @@ describe('RoleRepository interface', () => {
     await expect(roleRepository.verifyUserRole('', '')).rejects.toThrow(
       'ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );
+    await expect(roleRepository.verifyRoleExists('', '')).rejects.toThrow(
+      'ROLE_REPOSITORY.METHOD_NOT_IMPLEMENTED',
+    );
   });
 });

@@ -10,6 +10,7 @@ import pool from './database/postgres/pool.js';
 import UserRepository from '../Domains/users/UserRepository.js';
 import AuthenticationRepository from '../Domains/authentications/AuthenticationRepository.js';
 import RoleRepository from '../Domains/roles/RoleRepository.js';
+import MenuRepository from '../Domains/menus/MenuRepository.js';
 
 // --- Applications (Use Cases & Security Interfaces) ---
 import PasswordHash from '../Applications/security/PasswordHash.js';
@@ -18,15 +19,20 @@ import AuthenticationTokenManager from '../Applications/security/AuthenticationT
 import AddUserUseCase from '../Applications/use_case/users/AddUserUseCase.js';
 import LoginUserUseCase from '../Applications/use_case/authentications/LoginUserUseCase.js';
 import LogoutUserUseCase from '../Applications/use_case/authentications/LogoutUserUseCase.js';
+
 import RefreshAuthenticationUseCase from '../Applications/use_case/authentications/RefreshAuthenticationUseCase.js';
 import SelectRoleUseCase from '../Applications/use_case/authentications/SelectRoleUseCase.js';
+
+import AddMenuUseCase from '../Applications/use_case/menus/AddMenuUseCase.js';
+import GetRoleMenusUseCase from '../Applications/use_case/menus/GetRoleMenusUseCase.js';
+import AssignMenuAccessUseCase from '../Applications/use_case/menus/AssignMenuAccessUseCase.js';
 
 // --- Infrastructure Implementations ---
 import UserRepositoryPostgres from './repository/UserRepositoryPostgres.js';
 import AuthenticationRepositoryPostgres from './repository/AuthenticationRepositoryPostgres.js';
 import BcryptPasswordHash from './security/BcryptPasswordHash.js';
 import JwtTokenManager from './security/JwtTokenManager.js';
-
+import MenuRepositoryPostgres from './repository/MenuRepositoryPostgres.js';
 import RoleRepositoryPostgres from './repository/RoleRepositoryPostgres.js';
 
 const container = createContainer();
@@ -56,6 +62,11 @@ container.register([
   {
     key: RoleRepository.name,
     Class: RoleRepositoryPostgres,
+    parameter: { dependencies: [{ concrete: pool }, { concrete: nanoid }] },
+  },
+  {
+    key: MenuRepository.name,
+    Class: MenuRepositoryPostgres,
     parameter: { dependencies: [{ concrete: pool }, { concrete: nanoid }] },
   },
 ]);
@@ -115,6 +126,33 @@ container.register([
         { name: 'authenticationRepository', internal: AuthenticationRepository.name },
         { name: 'authenticationTokenManager', internal: AuthenticationTokenManager.name },
         { name: 'roleRepository', internal: RoleRepository.name },
+      ],
+    },
+  },
+  {
+    key: AddMenuUseCase.name,
+    Class: AddMenuUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [{ name: 'menuRepository', internal: MenuRepository.name }],
+    },
+  },
+  {
+    key: GetRoleMenusUseCase.name,
+    Class: GetRoleMenusUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [{ name: 'menuRepository', internal: MenuRepository.name }],
+    },
+  },
+  {
+    key: AssignMenuAccessUseCase.name,
+    Class: AssignMenuAccessUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        { name: 'roleRepository', internal: RoleRepository.name },
+        { name: 'menuRepository', internal: MenuRepository.name },
       ],
     },
   },

@@ -21,9 +21,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Forum API Documentation',
+      title: 'Auth Gateway Documentation',
       version: '1.0',
-      description: 'API Documentation for the Forum application.',
+      description: 'API Documentation for the Auth Gateway application.',
     },
     servers: swaggerServers,
     components: {
