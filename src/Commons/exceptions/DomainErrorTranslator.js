@@ -38,14 +38,16 @@ DomainErrorTranslator._directories = {
     'refresh token harus string',
   ),
 
-  /*
-  'SELECT_ROLE.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
-    'tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada',
+  'NEW_MENU.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
+    'tidak dapat membuat menu, properti yang dibutuhkan tidak ada',
   ),
-  'SELECT_ROLE.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
-    'tidak dapat membuat user baru karena tipe data tidak sesuai',
+  'NEW_MENU.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
+    'tidak dapat membuat menu, tipe data tidak sesuai',
   ),
-  */
+
+  'NEW_ROLE_MENU_ACCESS.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
+    'tidak dapat menambahkan access, properti yang dibutuhkan tidak ada',
+  ),
 };
 
 export default DomainErrorTranslator;

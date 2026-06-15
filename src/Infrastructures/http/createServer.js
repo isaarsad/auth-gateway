@@ -7,6 +7,7 @@ import ClientError from '../../Commons/exceptions/ClientError.js';
 import DomainErrorTranslator from '../../Commons/exceptions/DomainErrorTranslator.js';
 import users from '../../Interfaces/http/api/users/index.js';
 import authentications from '../../Interfaces/http/api/authentications/index.js';
+import menus from '../../Interfaces/http/api/menus/index.js';
 
 const createServer = async (container) => {
   const app = express();
@@ -22,6 +23,7 @@ const createServer = async (container) => {
   // Register routes
   app.use('/users', users(container));
   app.use('/authentications', authentications(container));
+  app.use('/menus', menus(container));
 
   // 404 handler
   app.use((req, res) => {

@@ -1,3 +1,4 @@
+import config from '../../Commons/config.js';
 import swaggerJsDoc from 'swagger-jsdoc';
 
 let swaggerServers;
@@ -11,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   swaggerServers = [
     {
-      url: 'http://localhost:80',
+      url: `http://localhost:${config.app.port}`,
       description: 'Local Development Server',
     },
   ];

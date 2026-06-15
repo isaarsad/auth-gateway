@@ -17,9 +17,9 @@ const AuthMiddleware = (getTokenManager) => async (req, res, next) => {
 
   await authenticationTokenManager.verifyAccessToken(token);
 
-  const { id, username } = await authenticationTokenManager.decodePayload(token);
+  const { id, roleId } = await authenticationTokenManager.decodePayload(token);
 
-  req.user = { id, username };
+  req.user = { id, roleId };
 
   next();
 };

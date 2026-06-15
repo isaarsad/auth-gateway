@@ -45,7 +45,6 @@ describe('HTTP Server', () => {
 
       // Action
       const response = await request(app).post('/users').send(requestPayload);
-      console.log('Pesan Error Asli Server:', response.body);
 
       // Assert
       expect(response.status).toEqual(201);

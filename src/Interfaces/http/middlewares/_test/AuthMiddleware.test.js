@@ -59,7 +59,7 @@ describe('AuthMiddleware', () => {
     mockTokenManager.verifyAccessToken = vi.fn().mockResolvedValue();
     mockTokenManager.decodePayload = vi.fn().mockResolvedValue({
       id: 'user-123',
-      username: 'userauth',
+      roleId: 'role-123',
     });
 
     const getTokenManager = vi.fn().mockReturnValue(mockTokenManager);
@@ -75,7 +75,7 @@ describe('AuthMiddleware', () => {
 
     expect(req.user).toEqual({
       id: 'user-123',
-      username: 'userauth',
+      roleId: 'role-123',
     });
 
     expect(next).toBeCalledTimes(1);
