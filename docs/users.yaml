@@ -18,7 +18,7 @@ paths:
               properties:
                 username:
                   type: string
-                  example: arsadisa
+                  example: arsad
                 password:
                   type: string
                   example: secret_password

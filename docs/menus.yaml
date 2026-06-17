@@ -1,0 +1,164 @@
+paths:
+  /menus:
+    post:
+      summary: Create Menu
+      tags:
+        - Menus
+      description: Add a new menu item. Set parentId to nest it under another menu, or null for a top-level menu.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - menuName
+              properties:
+                menuName:
+                  type: string
+                  example: 'Dashboard'
+                parentId:
+                  type: string
+                  nullable: true
+                  description: ID of the parent menu. Use null for a top-level menu.
+                  example: null
+                url:
+                  type: string
+                  example: '/dashboard'
+                orderIndex:
+                  type: integer
+                  example: 1
+      responses:
+        201:
+          description: Menu created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      addedMenu:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 'menu-123'
+                          menuName:
+                            type: string
+                            example: 'Dashboard'
+                          parentId:
+                            type: string
+                            nullable: true
+                            example: null
+        400:
+          description: |
+            Bad request. Possible causes:
+            - `menuName` is missing from the request body
+            - one or more properties have an invalid data type
+        401:
+          description: Unauthorized. Access token is missing or invalid.
+
+    get:
+      summary: Get Menus by Role
+      tags:
+        - Menus
+      description: |
+        Retrieve the nested menu tree accessible to the authenticated user.
+        roleId is read from the access token (req.user.roleId), not a query parameter.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Menu tree retrieved successfully. Returns an empty array if the role has no assigned menus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      menus:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MenuNode'
+        401:
+          description: Unauthorized. Access token is missing or invalid.
+
+  /menus/menu-access:
+    post:
+      summary: Assign Menu Access to Role
+      tags:
+        - Menus
+      description: Grant a role access to view a specific menu.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - roleId
+                - menuId
+              properties:
+                roleId:
+                  type: string
+                  example: 'role-123'
+                menuId:
+                  type: string
+                  example: 'menu-123'
+      responses:
+        201:
+          description: Access granted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: 'Akses menu berhasil ditambahkan ke role tersebut'
+        400:
+          description: Bad request. `roleId` or `menuId` is missing from the request body.
+        404:
+          description: 'Not found. Menu with the given menuId does not exist.'
+        401:
+          description: Unauthorized. Access token is missing or invalid.
+
+components:
+  schemas:
+    MenuNode:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 'menu-1'
+        menuName:
+          type: string
+          example: 'Menu 1'
+        url:
+          type: string
+          example: '/menu1'
+        orderIndex:
+          type: integer
+          example: 1
+        children:
+          type: array
+          description: Nested child menus. Empty array if this menu has no children.
+          items:
+            $ref: '#/components/schemas/MenuNode'

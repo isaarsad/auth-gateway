@@ -1,0 +1,87 @@
+paths:
+  /roles:
+    post:
+      summary: Create Role
+      tags:
+        - Roles
+      description: Add a new role to the system. Role name must be unique.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - roleName
+              properties:
+                roleName:
+                  type: string
+                  example: 'Staff'
+      responses:
+        201:
+          description: Role created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      addedRole:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: 'role-456'
+                          roleName:
+                            type: string
+                            example: 'Staff'
+        400:
+          description: |
+            Bad request. Possible causes:
+            - `roleName` is missing from the request body
+            - `roleName` is not a string
+            - `roleName` already exists
+        401:
+          description: Unauthorized. Access token is missing or invalid.
+
+    get:
+      summary: Get All Roles
+      tags:
+        - Roles
+      description: Retrieve the list of all available roles in the system.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Roles retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 'role-123'
+                            roleName:
+                              type: string
+                              example: 'Administrator'
+        401:
+          description: Unauthorized. Access token is missing or invalid.
