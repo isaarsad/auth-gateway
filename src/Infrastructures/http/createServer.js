@@ -8,6 +8,7 @@ import DomainErrorTranslator from '../../Commons/exceptions/DomainErrorTranslato
 import users from '../../Interfaces/http/api/users/index.js';
 import authentications from '../../Interfaces/http/api/authentications/index.js';
 import menus from '../../Interfaces/http/api/menus/index.js';
+import roles from '../../Interfaces/http/api/roles/index.js';
 
 const createServer = async (container) => {
   const app = express();
@@ -23,6 +24,7 @@ const createServer = async (container) => {
   // Register routes
   app.use('/users', users(container));
   app.use('/authentications', authentications(container));
+  app.use('/roles', roles(container));
   app.use('/menus', menus(container));
 
   // 404 handler

@@ -24,4 +24,21 @@ describe('GetRolesUseCase', () => {
     expect(actualRoles).toEqual(expectedRoles);
     expect(mockRoleRepository.getRoles).toBeCalledTimes(1);
   });
+
+  it('should handle empty array correctly when no roles found', async () => {
+    // Arrange: Paksa mock repo balikin array kosong
+    const mockRoleRepository = new RoleRepository();
+    mockRoleRepository.getRoles = vi.fn().mockResolvedValue([]);
+
+    const getRolesUseCase = new GetRolesUseCase({
+      roleRepository: mockRoleRepository,
+    });
+
+    // Action
+    const actualRoles = await getRolesUseCase.execute();
+
+    // Assert
+    expect(actualRoles).toEqual([]);
+    expect(mockRoleRepository.getRoles).toHaveBeenCalledTimes(1);
+  });
 });

@@ -223,6 +223,7 @@ describe('HTTP Server - Menus API', () => {
       expect(response.body.data.menus).toBeDefined();
 
       const menus = response.body.data.menus;
+      expect(Array.isArray(menus)).toBe(true);
       expect(menus).toHaveLength(1);
       expect(menus[0].id).toEqual('menu-1');
       expect(menus[0].children).toHaveLength(1);

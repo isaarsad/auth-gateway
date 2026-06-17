@@ -16,7 +16,7 @@ class BcryptPasswordHash extends PasswordHash {
     const result = await this._bcrypt.compare(password, hashedPassword);
 
     if (!result) {
-      throw new AuthenticationError('kredensial yang Anda masukkan salah');
+      throw new AuthenticationError('kredensial yang Anda berikan salah');
     }
   }
 }

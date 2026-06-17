@@ -1,10 +1,12 @@
 paths:
   /authentications:
     post:
-      summary: User Login
+      summary: User Login - Step 1
       tags:
         - Authentications
-      description: Authenticate user credentials and return access and refresh tokens.
+      description: Authenticate user credentials. On success, returns a short-lived preAuthToken
+        and the list of roles available to the user. Use the token and a chosen roleId
+        to complete login via POST /authentications/role.
       requestBody:
         required: true
         content:
@@ -23,7 +25,7 @@ paths:
                   example: secret_password
       responses:
         201:
-          description: Login successful. Tokens generated.
+          description: Credentials valid. Pre-auth token and available roles returned.
           content:
             application/json:
               schema:
@@ -35,14 +37,24 @@ paths:
                   data:
                     type: object
                     properties:
-                      accessToken:
+                      preAuthToken:
                         type: string
-                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-                      refreshToken:
-                        type: string
-                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh...'
+                        description: Short-lived token to be used only for role selection.
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.preauth...'
+                      availableRoles:
+                        type: array
+                        description: List of roles assigned to the user.
+                        items:
+                          type: object
+                          properties:
+                            roleId:
+                              type: string
+                              example: 'role-123'
+                            roleName:
+                              type: string
+                              example: 'Administrator'
         400:
-          description: Bad request. Invalid credentials format or request payload
+          description: Missing or invalid payload.
         401:
           description: Unauthorized. Invalid username or password.
 
@@ -113,3 +125,66 @@ paths:
                     example: success
         400:
           description: Bad request. Refresh token is missing from the request body.
+
+  /authentications/role:
+    post:
+      summary: 'Select Role - Step 2'
+      tags:
+        - Authentications
+      description: Complete the login flow by selecting one of the available roles.
+        Requires the preAuthToken from Step 1 as a Bearer token.
+        Returns the actual accessToken and refreshToken for subsequent requests.
+      security:
+        - preAuthToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - roleId
+              properties:
+                roleId:
+                  type: string
+                  description: The role ID chosen from the availableRoles list in Step 1.
+                  example: 'role-123'
+      responses:
+        201:
+          description: Role selected. Access and refresh tokens issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access...'
+                      refreshToken:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh...'
+        400:
+          description: Bad request. roleId is missing or invalid.
+        401:
+          description: Unauthorized. preAuthToken is missing or expired.
+        403:
+          description: Forbidden. The user does not have access to the requested role.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Full access token issued after role selection.
+    preAuthToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Short-lived token issued after Step 1 login, valid only for role selection.

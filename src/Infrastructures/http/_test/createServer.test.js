@@ -191,9 +191,9 @@ describe('HTTP Server', () => {
 
       const response = await request(app).post('/authentications').send(requestPayload);
 
-      expect(response.status).toEqual(400);
+      expect(response.status).toEqual(401);
       expect(response.body.status).toEqual('fail');
-      expect(response.body.message).toEqual('username tidak ditemukan');
+      expect(response.body.message).toEqual('kredensial yang Anda berikan salah');
     });
 
     it('should response 401 if password wrong', async () => {
@@ -217,7 +217,7 @@ describe('HTTP Server', () => {
 
       expect(response.status).toEqual(401);
       expect(response.body.status).toEqual('fail');
-      expect(response.body.message).toEqual('kredensial yang Anda masukkan salah');
+      expect(response.body.message).toEqual('kredensial yang Anda berikan salah');
     });
 
     it('should response 400 if login payload not contain needed property', async () => {

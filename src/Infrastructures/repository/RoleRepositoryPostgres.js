@@ -1,7 +1,7 @@
 import AuthorizationError from '../../Commons/exceptions/AuthorizationError.js';
 import InvariantError from '../../Commons/exceptions/InvariantError.js';
 import NotFoundError from '../../Commons/exceptions/NotFoundError.js';
-import NewRole from '../../Domains/roles/entities/NewRole.js';
+import RegisteredRole from '../../Domains/roles/entities/RegisteredRole.js';
 import RoleRepository from '../../Domains/roles/RoleRepository.js';
 
 class RoleRepositoryPostgres extends RoleRepository {
@@ -21,12 +21,12 @@ class RoleRepositoryPostgres extends RoleRepository {
     };
 
     const result = await this._pool.query(query);
-    return new NewRole({ ...result.rows[0] });
+    return new RegisteredRole({ ...result.rows[0] });
   }
 
   async getRoles() {
     const result = await this._pool.query('SELECT id, role_name AS "roleName" FROM roles');
-    return result.rows;
+    return result.rows.map((row) => new RegisteredRole(row));
   }
 
   async getRoleById(id) {
@@ -89,7 +89,7 @@ class RoleRepositoryPostgres extends RoleRepository {
     const result = await this._pool.query(query);
 
     if (result.rowCount > 0) {
-      throw new InvariantError('Nama role tidak tersedia');
+      throw new InvariantError('Nama role sudah digunakan');
     }
   }
 }

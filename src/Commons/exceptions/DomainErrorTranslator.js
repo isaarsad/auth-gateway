@@ -48,6 +48,13 @@ DomainErrorTranslator._directories = {
   'NEW_ROLE_MENU_ACCESS.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
     'tidak dapat menambahkan access, properti yang dibutuhkan tidak ada',
   ),
+
+  'NEW_ROLE.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError(
+    'tidak dapat membuat role, properti yang dibutuhkan tidak ada',
+  ),
+  'NEW_ROLE.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError(
+    'tidak dapat membuat role, tipe data tidak sesuai',
+  ),
 };
 
 export default DomainErrorTranslator;

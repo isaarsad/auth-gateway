@@ -1,6 +1,7 @@
 import RolesTableTestHelper from '../../../../tests/RolesTableTestHelper.js';
 import UserRolesTableTestHelper from '../../../../tests/UserRolesTableTestHelper.js';
 import UsersTableTestHelper from '../../../../tests/UsersTableTestHelper.js';
+import AuthenticationError from '../../../Commons/exceptions/AuthenticationError.js';
 import InvariantError from '../../../Commons/exceptions/InvariantError.js';
 import RegisterUser from '../../../Domains/users/entities/RegisterUser.js';
 import RegisteredUser from '../../../Domains/users/entities/RegisteredUser.js';
@@ -99,7 +100,7 @@ describe('UserRepositoryPostgres', () => {
 
       // Action & Assert
       return expect(userRepositoryPostgres.getPasswordByUsername('arsad')).rejects.toThrow(
-        InvariantError,
+        AuthenticationError,
       );
     });
 

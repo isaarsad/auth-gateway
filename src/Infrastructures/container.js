@@ -23,6 +23,9 @@ import LogoutUserUseCase from '../Applications/use_case/authentications/LogoutUs
 import RefreshAuthenticationUseCase from '../Applications/use_case/authentications/RefreshAuthenticationUseCase.js';
 import SelectRoleUseCase from '../Applications/use_case/authentications/SelectRoleUseCase.js';
 
+import AddRoleUseCase from '../Applications/use_case/roles/AddRoleUseCase.js';
+import GetRolesUseCase from '../Applications/use_case/roles/GetRolesUseCase.js';
+
 import AddMenuUseCase from '../Applications/use_case/menus/AddMenuUseCase.js';
 import GetRoleMenusUseCase from '../Applications/use_case/menus/GetRoleMenusUseCase.js';
 import AssignMenuAccessUseCase from '../Applications/use_case/menus/AssignMenuAccessUseCase.js';
@@ -127,6 +130,22 @@ container.register([
         { name: 'authenticationTokenManager', internal: AuthenticationTokenManager.name },
         { name: 'roleRepository', internal: RoleRepository.name },
       ],
+    },
+  },
+  {
+    key: AddRoleUseCase.name,
+    Class: AddRoleUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [{ name: 'roleRepository', internal: RoleRepository.name }],
+    },
+  },
+  {
+    key: GetRolesUseCase.name,
+    Class: GetRolesUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [{ name: 'roleRepository', internal: RoleRepository.name }],
     },
   },
   {

@@ -3,10 +3,10 @@ import UserRolesTableTestHelper from '../../../../tests/UserRolesTableTestHelper
 import UsersTableTestHelper from '../../../../tests/UsersTableTestHelper.js';
 import InvariantError from '../../../Commons/exceptions/InvariantError.js';
 import AuthorizationError from '../../../Commons/exceptions/AuthorizationError.js';
-import NewRole from '../../../Domains/roles/entities/NewRole.js';
 import pool from '../../database/postgres/pool.js';
 import RoleRepositoryPostgres from '../RoleRepositoryPostgres.js';
 import NotFoundError from '../../../Commons/exceptions/NotFoundError.js';
+import RegisteredRole from '../../../Domains/roles/entities/RegisteredRole.js';
 
 describe('RoleRepositoryPostgres', () => {
   afterEach(async () => {
@@ -33,7 +33,7 @@ describe('RoleRepositoryPostgres', () => {
       const role = await RolesTableTestHelper.findRolesById('role-123');
       expect(role).toHaveLength(1);
       expect(newRole).toStrictEqual(
-        new NewRole({
+        new RegisteredRole({
           id: 'role-123',
           roleName: 'Administrator',
         }),
@@ -53,8 +53,8 @@ describe('RoleRepositoryPostgres', () => {
 
       // Assert
       expect(roles).toHaveLength(2);
-      expect(roles[0]).toStrictEqual({ id: 'role-123', roleName: 'Admin' });
-      expect(roles[1]).toStrictEqual({ id: 'role-456', roleName: 'Staff' });
+      expect(roles[0]).toStrictEqual(new RegisteredRole({ id: 'role-123', roleName: 'Admin' }));
+      expect(roles[1]).toStrictEqual(new RegisteredRole({ id: 'role-456', roleName: 'Staff' }));
     });
   });
 
