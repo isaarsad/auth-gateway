@@ -95,6 +95,36 @@ paths:
         401:
           description: Unauthorized. Access token is missing or invalid.
 
+  /menus/list:
+    get:
+      summary: Get Role Menus (alias)
+      tags:
+        - Menus
+      description: |
+        List menus.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Same role-scoped menu tree as GET /menus.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      menus:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MenuNode'
+        401:
+          description: Unauthorized. Access token is missing or invalid.
+
   /menus/menu-access:
     post:
       summary: Assign Menu Access to Role

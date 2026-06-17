@@ -6,6 +6,7 @@ const createMenusRouter = (controller, getTokenManager) => {
 
   router.post('/', AuthMiddleware(getTokenManager), controller.postMenuController);
   router.get('/', AuthMiddleware(getTokenManager), controller.getRoleMenusController);
+  router.get('/list', AuthMiddleware(getTokenManager), controller.getMenusController);
   router.post(
     '/menu-access',
     AuthMiddleware(getTokenManager),

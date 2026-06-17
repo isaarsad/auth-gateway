@@ -37,6 +37,7 @@ import BcryptPasswordHash from './security/BcryptPasswordHash.js';
 import JwtTokenManager from './security/JwtTokenManager.js';
 import MenuRepositoryPostgres from './repository/MenuRepositoryPostgres.js';
 import RoleRepositoryPostgres from './repository/RoleRepositoryPostgres.js';
+import GetMenusUseCase from '../Applications/use_case/menus/GetMenusUseCase.js';
 
 const container = createContainer();
 
@@ -151,6 +152,14 @@ container.register([
   {
     key: AddMenuUseCase.name,
     Class: AddMenuUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [{ name: 'menuRepository', internal: MenuRepository.name }],
+    },
+  },
+  {
+    key: GetMenusUseCase.name,
+    Class: GetMenusUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [{ name: 'menuRepository', internal: MenuRepository.name }],

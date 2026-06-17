@@ -60,6 +60,25 @@ class MenuRepositoryPostgres extends MenuRepository {
 
     await this._pool.query(query);
   }
+
+  async getMenus() {
+    const query = {
+      text: `
+        SELECT 
+          id, 
+          menu_name AS "menuName", 
+          url, 
+          parent_id AS "parentId", 
+          order_index AS "orderIndex" 
+        FROM menus 
+        ORDER BY order_index ASC
+      `,
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows;
+  }
 }
 
 export default MenuRepositoryPostgres;
